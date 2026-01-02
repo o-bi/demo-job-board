@@ -50,7 +50,9 @@ const cityToCanton: Record<string, string> = {
   'Schaffhausen': 'SH', 'remote': 'ZH',
 }
 
-const companySizeMap: Record<string, string> = {
+type CompanySize = '1-10' | '11-50' | '51-200' | '201-500' | '501-1000' | '1000+'
+
+const companySizeMap: Record<string, CompanySize> = {
   '1-10': '1-10', '10-50': '11-50', '50-100': '51-200',
   '100-250': '51-200', '250-500': '201-500', '500-1k': '501-1000',
   '1k+': '1000+', '1k-5k': '1000+', '5k+': '1000+',
