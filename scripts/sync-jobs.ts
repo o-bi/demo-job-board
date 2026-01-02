@@ -39,7 +39,9 @@ interface ApiJobDetail {
   perkKeys?: string[]
 }
 
-const cityToCanton: Record<string, string> = {
+type Canton = 'ZH' | 'BE' | 'LU' | 'UR' | 'SZ' | 'OW' | 'NW' | 'GL' | 'ZG' | 'FR' | 'SO' | 'BS' | 'BL' | 'SH' | 'AR' | 'AI' | 'SG' | 'GR' | 'AG' | 'TG' | 'TI' | 'VD' | 'VS' | 'NE' | 'GE' | 'JU'
+
+const cityToCanton: Record<string, Canton> = {
   'Zurich': 'ZH',
   'Zürich': 'ZH',
   'Zuerich': 'ZH',
@@ -64,7 +66,9 @@ const cityToCanton: Record<string, string> = {
   'remote': 'ZH',
 }
 
-const companySizeMap: Record<string, string> = {
+type CompanySize = '1-10' | '11-50' | '51-200' | '201-500' | '501-1000' | '1000+'
+
+const companySizeMap: Record<string, CompanySize> = {
   '1-10': '1-10',
   '10-50': '11-50',
   '50-100': '51-200',
@@ -76,7 +80,9 @@ const companySizeMap: Record<string, string> = {
   '5k+': '1000+',
 }
 
-const expLevelMap: Record<string, string> = {
+type ExperienceLevel = 'junior' | 'regular' | 'senior' | 'lead'
+
+const expLevelMap: Record<string, ExperienceLevel> = {
   'Junior': 'junior',
   'Regular': 'regular',
   'Senior': 'senior',
@@ -115,14 +121,14 @@ const createRichText = (text: string) => ({
       {
         type: 'paragraph',
         children: [{ type: 'text', text }],
-        direction: 'ltr',
-        format: '',
+        direction: 'ltr' as const,
+        format: '' as const,
         indent: 0,
         version: 1,
       },
     ],
-    direction: 'ltr',
-    format: '',
+    direction: 'ltr' as const,
+    format: '' as const,
     indent: 0,
     version: 1,
   },
@@ -164,7 +170,7 @@ async function syncJobs() {
   console.log(`🏢 Found ${companiesMap.size} unique companies`)
 
   // Create/update companies
-  const companyIdMap = new Map<string, string>()
+  const companyIdMap = new Map<string, number>()
 
   for (const [companyName, sampleJob] of companiesMap) {
     const slug = companyName
@@ -172,7 +178,7 @@ async function syncJobs() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
 
-    const canton = cityToCanton[sampleJob.cityCategory] || cityToCanton[sampleJob.actualCity] || 'ZH'
+    const canton: Canton = cityToCanton[sampleJob.cityCategory] || cityToCanton[sampleJob.actualCity] || 'ZH'
 
     try {
       const existing = await payload.find({
@@ -194,7 +200,7 @@ async function syncJobs() {
             data: updates,
           })
         }
-        companyIdMap.set(companyName, String(existing.docs[0].id))
+        companyIdMap.set(companyName, Number(existing.docs[0].id))
       } else {
         const created = await payload.create({
           collection: 'companies',
@@ -210,7 +216,7 @@ async function syncJobs() {
             },
           },
         })
-        companyIdMap.set(companyName, String(created.id))
+        companyIdMap.set(companyName, Number(created.id))
         console.log(`  + Created company: ${companyName}`)
       }
     } catch (err) {
@@ -236,8 +242,8 @@ async function syncJobs() {
     const detail = await fetchJobDetail(job._id)
 
     const slug = job.jobUrl || `${job.company}-${job._id}`.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    const workModel = job.workplace === 'remote' ? 'remote' : job.workplace === 'hybrid' ? 'hybrid' : 'onsite'
-    const canton = cityToCanton[job.cityCategory] || cityToCanton[job.actualCity] || 'ZH'
+    const workModel: 'remote' | 'hybrid' | 'onsite' = job.workplace === 'remote' ? 'remote' : job.workplace === 'hybrid' ? 'hybrid' : 'onsite'
+    const canton: Canton = cityToCanton[job.cityCategory] || cityToCanton[job.actualCity] || 'ZH'
 
     // Build description (intro/about)
     const descriptionText = detail?.description?.trim() || `${job.name} bei ${job.company}`

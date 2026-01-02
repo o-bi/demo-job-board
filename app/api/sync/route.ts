@@ -60,7 +60,9 @@ const companySizeMap: Record<string, CompanySize> = {
   '1k+': '1000+', '1k-5k': '1000+', '5k+': '1000+',
 }
 
-const expLevelMap: Record<string, string> = {
+type ExperienceLevel = 'junior' | 'regular' | 'senior' | 'lead'
+
+const expLevelMap: Record<string, ExperienceLevel> = {
   'Junior': 'junior', 'Regular': 'regular', 'Senior': 'senior',
   'Lead': 'lead', 'Manager': 'lead',
 }
@@ -186,7 +188,7 @@ export async function POST(request: NextRequest) {
 
       const detail = await fetchJobDetail(job._id)
       const slug = job.jobUrl || `${job.company}-${job._id}`.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-      const workModel = job.workplace === 'remote' ? 'remote' : job.workplace === 'hybrid' ? 'hybrid' : 'onsite'
+      const workModel: 'remote' | 'hybrid' | 'onsite' = job.workplace === 'remote' ? 'remote' : job.workplace === 'hybrid' ? 'hybrid' : 'onsite'
       const canton: Canton = cityToCanton[job.cityCategory] || cityToCanton[job.actualCity] || 'ZH'
 
       const descriptionText = detail?.description?.trim() || `${job.name} bei ${job.company}`
