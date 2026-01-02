@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import type { Where } from 'payload'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -13,19 +14,21 @@ export async function GET(request: NextRequest) {
   try {
     const payload = await getPayload({ config })
 
-    const where: Record<string, unknown> = {
-      status: { equals: 'active' },
-    }
+    const conditions: Where[] = [
+      { status: { equals: 'active' } },
+    ]
 
     if (category) {
-      where.category = { equals: category }
+      conditions.push({ category: { equals: category } })
     }
     if (city) {
-      where['location.city'] = { contains: city }
+      conditions.push({ 'location.city': { contains: city } })
     }
     if (workModel) {
-      where.workModel = { equals: workModel }
+      conditions.push({ workModel: { equals: workModel } })
     }
+
+    const where: Where = { and: conditions }
 
     const { docs, totalDocs, totalPages } = await payload.find({
       collection: 'jobs',
