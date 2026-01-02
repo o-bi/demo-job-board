@@ -4,12 +4,12 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { Users } from './collections/Users.ts'
-import { Jobs } from './collections/Jobs.ts'
-import { Companies } from './collections/Companies.ts'
-import { Media } from './collections/Media.ts'
-import { Applications } from './collections/Applications.ts'
-import { CandidateProfiles } from './collections/CandidateProfiles.ts'
+import { Users } from './collections/Users'
+import { Jobs } from './collections/Jobs'
+import { Companies } from './collections/Companies'
+import { Media } from './collections/Media'
+import { Applications } from './collections/Applications'
+import { CandidateProfiles } from './collections/CandidateProfiles'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
