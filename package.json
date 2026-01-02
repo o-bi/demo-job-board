@@ -1,0 +1,46 @@
+{
+  "name": "demo-job-board",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3024 --turbopack",
+    "dev:webpack": "TURBOPACK=0 next dev -p 3024",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed": "tsx --env-file=.env seed.ts",
+    "sync": "tsx --env-file=.env scripts/sync-jobs.ts",
+    "sync:logos": "tsx --env-file=.env scripts/enrich-logos.ts",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "generate:types": "payload generate:types",
+    "migrate:create": "PAYLOAD_CONFIG_PATH=./payload.config.ts tsx node_modules/payload/bin.js migrate:create",
+    "migrate": "PAYLOAD_CONFIG_PATH=./payload.config.ts tsx node_modules/payload/bin.js migrate"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.69.0",
+    "@payloadcms/next": "^3.69.0",
+    "@payloadcms/richtext-lexical": "^3.69.0",
+    "@payloadcms/ui": "^3.69.0",
+    "clsx": "^2.1.1",
+    "next": "16.1.1",
+    "payload": "^3.69.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sass": "^1.97.1",
+    "sharp": "^0.34.5",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5"
+  }
+}
