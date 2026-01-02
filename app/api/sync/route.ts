@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create/update companies
-    const companyIdMap = new Map<string, string>()
+    const companyIdMap = new Map<string, number>()
 
     for (const [companyName, sampleJob] of companiesMap) {
       const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         })
 
         if (existing.docs.length > 0) {
-          companyIdMap.set(companyName, String(existing.docs[0].id))
+          companyIdMap.set(companyName, Number(existing.docs[0].id))
         } else {
           const created = await payload.create({
             collection: 'companies',
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
               },
             },
           })
-          companyIdMap.set(companyName, String(created.id))
+          companyIdMap.set(companyName, Number(created.id))
         }
       } catch {
         // Skip company on error
