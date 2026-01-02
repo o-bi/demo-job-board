@@ -37,11 +37,15 @@ export async function GET(request: NextRequest) {
       id: company.id,
       name: company.name,
       slug: company.slug,
+      logo: company.logo,
       logoUrl: company.logoUrl,
+      description: company.description,
       website: company.website,
       industry: company.industry,
       size: company.size,
       location: company.location,
+      createdAt: company.createdAt,
+      updatedAt: company.updatedAt,
     }))
 
     return NextResponse.json({
