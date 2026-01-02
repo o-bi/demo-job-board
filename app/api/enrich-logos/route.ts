@@ -19,7 +19,25 @@ interface LogoResult {
   website?: string
 }
 
-function getDomainCandidates(companyName: string): string[] {
+function extractDomainFromUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
+    return parsed.hostname.replace(/^www\./, '')
+  } catch {
+    return null
+  }
+}
+
+function getDomainCandidates(companyName: string, website?: string | null): string[] {
+  // If website is provided, use it first
+  if (website) {
+    const domain = extractDomainFromUrl(website)
+    if (domain) {
+      return [domain]
+    }
+  }
+
+  // Fall back to guessing from company name
   const suffixPattern = /\s+(AG|GmbH|SA|Sagl|Ltd|Inc|Corp|SE|Co\.?\s*KG?|Foundation|Schweiz|Switzerland|Deutschland|Group|Labs?|BFH|ETH)\s*$/gi
 
   let baseName = companyName
@@ -146,9 +164,13 @@ export async function POST(request: NextRequest) {
     let enriched = 0
     let failed = 0
 
+    const results: Array<{ name: string; status: string; domain?: string; logoUrl?: string }> = []
+
     for (const company of companies) {
-      const domainCandidates = getDomainCandidates(company.name)
+      const domainCandidates = getDomainCandidates(company.name, company.website)
       let result: LogoResult | null = null
+
+      console.log(`Processing: ${company.name}, trying domains: ${domainCandidates.slice(0, 3).join(', ')}`)
 
       for (const domain of domainCandidates.slice(0, 5)) {
         result = await fetchLogoUrl(domain, apiKey)
@@ -157,6 +179,8 @@ export async function POST(request: NextRequest) {
       }
 
       if (!result) {
+        console.log(`  No logo found for ${company.name}`)
+        results.push({ name: company.name, status: 'no_logo' })
         failed++
         await new Promise(resolve => setTimeout(resolve, 2000))
         continue
@@ -175,8 +199,12 @@ export async function POST(request: NextRequest) {
           id: company.id,
           data: updateData,
         })
+        console.log(`  ✓ Updated ${company.name} with logo from ${result.domain}`)
+        results.push({ name: company.name, status: 'enriched', domain: result.domain, logoUrl: result.logoUrl })
         enriched++
-      } catch {
+      } catch (err) {
+        console.log(`  ✗ Error updating ${company.name}: ${err}`)
+        results.push({ name: company.name, status: 'error' })
         failed++
       }
 
@@ -189,6 +217,7 @@ export async function POST(request: NextRequest) {
       total: companies.length,
       enriched,
       failed,
+      results: results.slice(0, 20), // First 20 results for debugging
     })
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 })

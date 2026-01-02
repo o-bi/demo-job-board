@@ -13,9 +13,26 @@ interface EnrichResponse {
   error?: string
 }
 
-// Derive possible domains from company name
-function getDomainCandidates(companyName: string): string[] {
-  // Remove common suffixes
+function extractDomainFromUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
+    return parsed.hostname.replace(/^www\./, '')
+  } catch {
+    return null
+  }
+}
+
+// Derive possible domains from company name or website
+function getDomainCandidates(companyName: string, website?: string | null): string[] {
+  // If website is provided, use it first
+  if (website) {
+    const domain = extractDomainFromUrl(website)
+    if (domain) {
+      return [domain]
+    }
+  }
+
+  // Fall back to guessing from company name
   const suffixPattern = /\s+(AG|GmbH|SA|Sagl|Ltd|Inc|Corp|SE|Co\.?\s*KG?|Foundation|Schweiz|Switzerland|Deutschland|Group|Labs?|BFH|ETH)\s*$/gi
 
   let baseName = companyName
@@ -130,8 +147,8 @@ async function enrichLogos() {
 
     console.log(`[${i + 1}/${companies.length}] ${company.name}`)
 
-    // Get domain candidates from company name
-    const domainCandidates = getDomainCandidates(company.name)
+    // Get domain candidates from website or company name
+    const domainCandidates = getDomainCandidates(company.name, company.website)
     console.log(`    🔍 Trying domains: ${domainCandidates.slice(0, 3).join(', ')}...`)
 
     let result: LogoResult | null = null
