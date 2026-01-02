@@ -47,8 +47,20 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy everything needed
-COPY --from=builder --chown=nextjs:nodejs /app ./
+# Copy public folder
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Copy standalone build
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copy static files to correct location
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy files needed for migrations
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/migrations ./migrations
+COPY --from=builder --chown=nextjs:nodejs /app/payload.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/collections ./collections
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
 
 USER nextjs
 
@@ -58,4 +70,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run migrations then start server
-CMD ["sh", "-c", "pnpm payload migrate && node .next/standalone/server.js"]
+CMD ["sh", "-c", "pnpm payload migrate && node server.js"]
