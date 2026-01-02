@@ -84,6 +84,38 @@ async function fetchLogoUrl(domain: string, apiKey: string): Promise<LogoResult 
   }
 }
 
+// GET: Check how many companies need logos (for debugging)
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  const expectedToken = process.env.SYNC_SECRET || process.env.PAYLOAD_SECRET
+
+  if (authHeader !== `Bearer ${expectedToken}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const payload = await getPayload({ config })
+
+    const { docs: companies } = await payload.find({
+      collection: 'companies',
+      where: {
+        or: [
+          { logoUrl: { exists: false } },
+          { logoUrl: { equals: null } },
+        ],
+      },
+      limit: 500,
+    })
+
+    return NextResponse.json({
+      needsLogos: companies.length,
+      sampleCompanies: companies.slice(0, 5).map(c => ({ id: c.id, name: c.name, logoUrl: c.logoUrl })),
+    })
+  } catch (error) {
+    return NextResponse.json({ error: String(error) }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const expectedToken = process.env.SYNC_SECRET || process.env.PAYLOAD_SECRET
