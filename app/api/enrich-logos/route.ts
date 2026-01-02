@@ -103,7 +103,10 @@ export async function POST(request: NextRequest) {
     const { docs: companies } = await payload.find({
       collection: 'companies',
       where: {
-        logoUrl: { exists: false },
+        or: [
+          { logoUrl: { exists: false } },
+          { logoUrl: { equals: null } },
+        ],
       },
       limit: 500,
     })

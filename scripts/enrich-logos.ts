@@ -108,11 +108,14 @@ async function enrichLogos() {
 
   const payload = await getPayload({ config })
 
-  // Fetch all companies without logoUrl
+  // Fetch all companies without logoUrl (check both non-existent and null)
   const { docs: companies } = await payload.find({
     collection: 'companies',
     where: {
-      logoUrl: { exists: false },
+      or: [
+        { logoUrl: { exists: false } },
+        { logoUrl: { equals: null } },
+      ],
     },
     limit: 500,
   })
