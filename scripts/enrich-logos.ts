@@ -132,6 +132,7 @@ async function enrichLogos() {
       or: [
         { logoUrl: { exists: false } },
         { logoUrl: { equals: null } },
+        { logoUrl: { equals: '' } },
       ],
     },
     limit: 500,

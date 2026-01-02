@@ -120,6 +120,7 @@ export async function GET(request: NextRequest) {
         or: [
           { logoUrl: { exists: false } },
           { logoUrl: { equals: null } },
+          { logoUrl: { equals: '' } },
         ],
       },
       limit: 500,
@@ -156,6 +157,7 @@ export async function POST(request: NextRequest) {
         or: [
           { logoUrl: { exists: false } },
           { logoUrl: { equals: null } },
+          { logoUrl: { equals: '' } },
         ],
       },
       limit: 500,
