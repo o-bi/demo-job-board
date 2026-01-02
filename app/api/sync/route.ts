@@ -40,7 +40,9 @@ interface ApiJobDetail {
   perkKeys?: string[]
 }
 
-const cityToCanton: Record<string, string> = {
+type Canton = 'ZH' | 'BE' | 'LU' | 'UR' | 'SZ' | 'OW' | 'NW' | 'GL' | 'ZG' | 'FR' | 'SO' | 'BS' | 'BL' | 'SH' | 'AR' | 'AI' | 'SG' | 'GR' | 'AG' | 'TG' | 'TI' | 'VD' | 'VS' | 'NE' | 'GE' | 'JU'
+
+const cityToCanton: Record<string, Canton> = {
   'Zurich': 'ZH', 'Zürich': 'ZH', 'Zuerich': 'ZH',
   'Basel': 'BS', 'Bern': 'BE', 'Geneva': 'GE', 'Genf': 'GE',
   'Lausanne': 'VD', 'Luzern': 'LU', 'Lucerne': 'LU',
@@ -139,7 +141,7 @@ export async function POST(request: NextRequest) {
 
     for (const [companyName, sampleJob] of companiesMap) {
       const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-      const canton = cityToCanton[sampleJob.cityCategory] || cityToCanton[sampleJob.actualCity] || 'ZH'
+      const canton: Canton = cityToCanton[sampleJob.cityCategory] || cityToCanton[sampleJob.actualCity] || 'ZH'
 
       try {
         const existing = await payload.find({
@@ -185,7 +187,7 @@ export async function POST(request: NextRequest) {
       const detail = await fetchJobDetail(job._id)
       const slug = job.jobUrl || `${job.company}-${job._id}`.toLowerCase().replace(/[^a-z0-9]+/g, '-')
       const workModel = job.workplace === 'remote' ? 'remote' : job.workplace === 'hybrid' ? 'hybrid' : 'onsite'
-      const canton = cityToCanton[job.cityCategory] || cityToCanton[job.actualCity] || 'ZH'
+      const canton: Canton = cityToCanton[job.cityCategory] || cityToCanton[job.actualCity] || 'ZH'
 
       const descriptionText = detail?.description?.trim() || `${job.name} bei ${job.company}`
       const responsibilitiesText = detail?.responsibilitiesTextArea?.trim() || ''
