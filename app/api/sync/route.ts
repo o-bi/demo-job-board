@@ -221,6 +221,8 @@ export async function POST(request: NextRequest) {
           canton,
           address: job.address || undefined,
           postalCode: job.postalCode || undefined,
+          latitude: job.latitude || undefined,
+          longitude: job.longitude || undefined,
         },
         employmentType: 'permanent' as const,
         workload: { min: 80, max: 100 },
